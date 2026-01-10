@@ -1,4 +1,4 @@
-*.iml
+﻿*.iml
 .gradle/
 **/build/
 /local.properties
@@ -16,3 +16,5 @@ captures/
 *.log
 .DS_Store
 Thumbs.db
+
+app/src/main/assets/units.properties
