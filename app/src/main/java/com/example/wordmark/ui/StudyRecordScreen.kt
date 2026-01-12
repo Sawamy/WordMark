@@ -1,5 +1,6 @@
-﻿package com.example.wordmark.ui
+package com.example.wordmark.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +21,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -55,6 +58,10 @@ fun StudyRecordScreen(modifier: Modifier = Modifier) {
     var startText by remember { mutableStateOf("") }
     var endText by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
+
+
+    // 削除対象の記録（確認ダイアログ用）
+    var recordToDelete by remember { mutableStateOf<StudyRecord?>(null) }
 
     val startNumber = startText.toIntOrNull()
     val endNumber = endText.toIntOrNull()
@@ -173,10 +180,47 @@ fun StudyRecordScreen(modifier: Modifier = Modifier) {
                     val timestamp = formatter.format(Date(record.timestamp))
                     Text(
                         "$timestamp \"${record.unitName}\" ${record.startNumber} - ${record.endNumber}  Count ${record.wordCount}",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                recordToDelete = record
+                            }
                     )
                 }
             }
         }
     }
+
+    recordToDelete?.let { record ->
+        val timestamp = formatter.format(Date(record.timestamp))
+        AlertDialog(
+            onDismissRequest = { recordToDelete = null },
+            title = { Text("Delete record?") },
+            text = {
+                Text(
+                    "$timestamp \"${record.unitName}\" ${record.startNumber} - ${record.endNumber}  Count ${record.wordCount}"
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        scope.launch {
+                            repository.delete(record)
+                        }
+                        recordToDelete = null
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { recordToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
+
+

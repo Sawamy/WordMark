@@ -1,4 +1,4 @@
-﻿package com.example.wordmark.data
+package com.example.wordmark.data
 
 import kotlinx.coroutines.flow.Flow
 
@@ -8,4 +8,10 @@ class StudyRecordRepository(private val dao: StudyRecordDao) {
     suspend fun add(record: StudyRecord) {
         dao.insert(record)
     }
+
+    suspend fun delete(record: StudyRecord) {
+        dao.delete(record)
+    }
 }
+
+
